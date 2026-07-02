@@ -1,7 +1,7 @@
 -- name: Day Night Cycle DX
 -- category: graphics
 -- incompatible: light day-night-cycle
--- description: Day Night Cycle DX v2.6.1\nBy \\#ec7731\\Agent X\n\n\\#dcdcdc\\This mod adds a fully featured day & night cycle system with night, sunrise, day and sunset to sm64coopdx. It includes an API and hook system for interfacing with several components of the mod externally. This mod was originally made for sm64ex-coop but has been practically rewritten for sm64coopdx.\n\nDays last 24 minutes and with the /time command, you can get/set the time or change your settings.\n\nThere is also now a new menu in the pause menu for Day Night Cycle DX!\n\nSpecial thanks to \\#e06de4\\MaiskX3\\#dcdcdc\\ for the night time music.\nSpecial thanks to \\#00ffff\\AngelicMiracles\\#dcdcdc\\ for the sunset, sunrise and night time skyboxes.\nSpecial thanks to \\#344ee1\\eros71\\#dcdcdc\\ for salvaging\nthe mod files.
+-- description: Day Night Cycle DX v2.6.2\nBy \\#ec7731\\Agent X\n\n\\#dcdcdc\\This mod adds a fully featured day & night cycle system with night, sunrise, day and sunset to sm64coopdx. It includes an API and hook system for interfacing with several components of the mod externally. This mod was originally made for sm64ex-coop but has been practically rewritten for sm64coopdx.\n\nDays last 24 minutes and with the /time command, you can get/set the time or change your settings.\n\nThere is also now a new menu in the pause menu for Day Night Cycle DX!\n\nSpecial thanks to \\#e06de4\\MaiskX3\\#dcdcdc\\ for the night time music.\nSpecial thanks to \\#00ffff\\AngelicMiracles\\#dcdcdc\\ for the sunset, sunrise and night time skyboxes.\nSpecial thanks to \\#344ee1\\eros71\\#dcdcdc\\ for salvaging\nthe mod files.
 
 -- localize functions to improve performance
 local network_is_server,mod_storage_load,tonumber,math_floor,type,error,table_insert,get_skybox,set_lighting_dir,set_lighting_color,set_vertex_color,set_fog_color,set_fog_intensity,network_check_singleplayer_pause,network_player_connected_count,obj_get_first_with_behavior_id,spawn_non_sync_object,obj_scale,math_lerp,vec3f_copy,vec3f_add,set_lighting_color_ambient,le_is_enabled,le_set_ambient_color,djui_hud_set_resolution,djui_hud_set_font,hud_is_hidden,hud_get_value,djui_hud_get_screen_width,djui_hud_measure_text,djui_hud_get_screen_height,djui_hud_set_color,play_sound,djui_chat_message_create,string_format,mod_storage_save_number,mod_storage_save_bool,get_date_and_time = network_is_server,mod_storage_load,tonumber,math.floor,type,error,table.insert,get_skybox,set_lighting_dir,set_lighting_color,set_vertex_color,set_fog_color,set_fog_intensity,network_check_singleplayer_pause,network_player_connected_count,obj_get_first_with_behavior_id,spawn_non_sync_object,obj_scale,math.lerp,vec3f_copy,vec3f_add,set_lighting_color_ambient,le_is_enabled,le_set_ambient_color,djui_hud_set_resolution,djui_hud_set_font,hud_is_hidden,hud_get_value,djui_hud_get_screen_width,djui_hud_measure_text,djui_hud_get_screen_height,djui_hud_set_color,play_sound,djui_chat_message_create,string.format,mod_storage_save_number,mod_storage_save_bool,get_date_and_time
@@ -825,12 +825,28 @@ local function index_to_letter(index, color)
 end
 
 --- @param index integer
+function get_lighting_dir(index)
+    if index < 0 or index > 2 then return 0 end
+
+    local letter = index_to_letter(index, false)
+    return sLuaLightingDir[letter]
+end
+
+--- @param index integer
 --- @param value number
 function set_lighting_dir(index, value)
     if index < 0 or index > 2 then return end
 
     local letter = index_to_letter(index, false)
     sLuaLightingColor[letter] = value
+end
+
+--- @param index integer
+function get_lighting_color(index)
+    if index < 0 or index > 2 then return 0 end
+
+    local letter = index_to_letter(index, true)
+    return sLuaLightingColor[letter]
 end
 
 --- @param index integer
@@ -844,6 +860,14 @@ function set_lighting_color(index, value)
 end
 
 --- @param index integer
+function get_lighting_color_ambient(index)
+    if index < 0 or index > 2 then return 0 end
+
+    local letter = index_to_letter(index, true)
+    return sLuaAmbientLightingColor[letter]
+end
+
+--- @param index integer
 --- @param value integer
 function set_lighting_color_ambient(index, value)
     if index < 0 or index > 2 then return end
@@ -851,6 +875,14 @@ function set_lighting_color_ambient(index, value)
 
     local letter = index_to_letter(index, true)
     sLuaAmbientLightingColor[letter] = value
+end
+
+--- @param index integer
+function get_fog_color(index)
+    if index < 0 or index > 2 then return 0 end
+
+    local letter = index_to_letter(index, true)
+    return sLuaFogColor[letter]
 end
 
 --- @param index integer
@@ -864,6 +896,14 @@ function set_fog_color(index, value)
 end
 
 --- @param index integer
+function get_vertex_color(index)
+    if index < 0 or index > 2 then return 0 end
+
+    local letter = index_to_letter(index, true)
+    return sLuaVertexColor[letter]
+end
+
+--- @param index integer
 --- @param value integer
 function set_vertex_color(index, value)
     if index < 0 or index > 2 then return end
@@ -873,10 +913,15 @@ function set_vertex_color(index, value)
     sLuaVertexColor[letter] = value
 end
 
+_G.get_lighting_dir = get_lighting_dir
 _G.set_lighting_dir = set_lighting_dir
+_G.get_lighting_color = get_lighting_color
 _G.set_lighting_color = set_lighting_color
+_G.get_lighting_color_ambient = get_lighting_color_ambient
 _G.set_lighting_color_ambient = set_lighting_color_ambient
+_G.get_fog_color = get_fog_color
 _G.set_fog_color = set_fog_color
+_G.get_vertex_color = get_vertex_color
 _G.set_vertex_color = set_vertex_color
 
 night_music_register(SEQ_LEVEL_GRASS, "night_level_grass")
